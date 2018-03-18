@@ -18,11 +18,11 @@ func NewGridFromFile(file string) (g *Grid, err error) {
 func NewGrid(vals []int) (g *Grid, err error) {
 
 	if vals == nil || len(vals) != 81 {
-		err = nil
+		err = fmt.Errorf("Board initialization error. Board is nil or values less than 81")
 		return nil, err
 	}
 
-	//check negative values, and values not between 0 and 9
+	//TODO:check negative values, and values not between 0 and 9
 	rep := make(map[int][]int)
 	for i, j, row := 0, 0, 1; i < len(vals); i++ {
 
@@ -47,8 +47,12 @@ func (g *Grid) RowCount() int {
 	return len(g.nums)
 }
 
-func (g *Grid) Row(rowNum int) []int {
-	return g.nums[rowNum]
+func (g *Grid) Row(rowNum int) (row []int, err error) {
+	if rowNum <= 0 || rowNum > 9 {
+		return nil, fmt.Errorf("The row at %d does not exist", rowNum)
+	}
+	row, err = g.nums[rowNum], nil
+	return
 }
 
 //one based
@@ -56,7 +60,7 @@ func (g *Grid) Column(colNum int) (col []int, err error) {
 
 	if colNum <= 0 || colNum > 9 {
 		err = fmt.Errorf("grid: column number must be between 0 and 9 but got %d", colNum)
-		return col, err
+		return
 	}
 
 	//sort keys
@@ -64,18 +68,44 @@ func (g *Grid) Column(colNum int) (col []int, err error) {
 		col = append(col, g.nums[key][colNum-1])
 	}
 
-	return col, err
+	return
 }
 
 func (g *Grid) Read(rowNum, colNum int) (val int, err error) {
+
 	if rowNum <= 0 || rowNum > 9 {
 		return val, fmt.Errorf("grid: rownum %d must be gt 10 or lt 0 ", rowNum)
 	}
+
 	if colNum <= 0 || colNum > 9 {
 		return val, fmt.Errorf("grid: colnum %d must be gt 10 or lt 0 ", colNum)
 	}
 
 	val = g.nums[rowNum][colNum-1]
 
-	return val, err
+	return
+}
+
+func (g *Grid) UpdateValueAt(rowNum, colNum, newValue int) (err error) {
+	if rowNum <= 0 || rowNum > 9 {
+		err = fmt.Errorf("Invalid row %d or column %d on grid", rowNum, colNum)
+		return
+	}
+
+	g.nums[rowNum][colNum-1] = newValue
+	return
+}
+
+//TODO: Is this supposed to be in the solver module or here?
+func (g *Grid) ConstraintsAt(rowNum, colNum int) (constraints []int, err error) {
+
+	val, err := g.Read(rowNum, colNum)
+
+	if val != 0 || err != nil {
+		err = fmt.Errorf("There was an error reading constraints at row %d, col %d", rowNum, colNum)
+		return constraints, err
+
+	}
+
+	return nil, err
 }
