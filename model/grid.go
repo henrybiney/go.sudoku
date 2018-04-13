@@ -19,7 +19,7 @@ func NewGrid(vals []int) (g *Grid, err error) {
 
 	if vals == nil || len(vals) != 81 {
 		err = fmt.Errorf("Board initialization error. Board is nil or values less than 81")
-		return nil, err
+		return
 	}
 
 	//TODO:check negative values, and values not between 0 and 9
@@ -40,7 +40,30 @@ func NewGrid(vals []int) (g *Grid, err error) {
 	}
 	sort.Ints(keys)
 
-	return &Grid{nums: rep, sorted_keys: keys}, err
+	g = &Grid{nums: rep, sorted_keys: keys}
+	return
+}
+
+func (g *Grid) PrintGrid() {
+	fmt.Printf("-------------------------------------")
+	fmt.Printf("\n")
+	for i := 1; i <= 9; i++ {
+
+		for j := 1; j <= 9; j++ {
+			v, _ := g.Read(i, j)
+			fmt.Printf(" %d |", v)
+		}
+		if i%3 == 0 {
+			fmt.Print("\n")
+			fmt.Printf("------------------------------------")
+
+		}
+
+		fmt.Printf("\n")
+
+	}
+	fmt.Printf("\n")
+
 }
 
 func (g *Grid) RowCount() int {
@@ -51,7 +74,7 @@ func (g *Grid) Row(rowNum int) (row []int, err error) {
 	if rowNum <= 0 || rowNum > 9 {
 		return nil, fmt.Errorf("The row at %d does not exist", rowNum)
 	}
-	row, err = g.nums[rowNum], nil
+	row = g.nums[rowNum]
 	return
 }
 
@@ -102,10 +125,27 @@ func (g *Grid) ConstraintsAt(rowNum, colNum int) (constraints []int, err error) 
 	val, err := g.Read(rowNum, colNum)
 
 	if val != 0 || err != nil {
-		err = fmt.Errorf("There was an error reading constraints at row %d, col %d", rowNum, colNum)
+		err = fmt.Errorf("There was an error reading constraints at row %d, col %d",
+			rowNum, colNum)
 		return constraints, err
 
 	}
 
-	return nil, err
+	return
+}
+
+func (g *Grid) GetBoxValuesAt(rowNum, colNum int) (boxValues []int) {
+
+	bounds := getBox(rowNum, colNum)
+	var val int = 0
+	for i := bounds.rowSt; i <= bounds.rowEnd; i++ {
+		for j := bounds.colSt; j <= bounds.colEnd; j++ {
+			if val, _ = g.Read(i, j); val != 0 {
+
+				boxValues = append(boxValues, val)
+			}
+		}
+	}
+
+	return
 }
