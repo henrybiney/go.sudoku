@@ -1,10 +1,10 @@
 package model_test
 
 import (
-	. "sudoku/model"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"sort"
+	. "sudoku/model"
 )
 
 var _ = Describe("Grid Model tests", func() {
@@ -59,7 +59,7 @@ var _ = Describe("Grid Model tests", func() {
 		})
 	})
 
-	Describe("Testing valid row and column retrieval", func() {
+	Describe("Testing valid invalid row and column retrieval", func() {
 		Context("Given an invalid row number", func() {
 			It("Should return an error", func() {
 
@@ -93,7 +93,8 @@ var _ = Describe("Grid Model tests", func() {
 			It("Should return a valid array of column values", func() {
 				grid, _ := NewGrid(gridNums)
 				val, err := grid.Read(1, 2)
-				Ω(grid.Column(3)).Should(Equal([]int{0, 0, 2, 3, 0, 7, 9, 0, 0}))
+				Ω(grid.Column(3)).Should(Equal([]int{0, 0, 2, 3, 0,
+					7, 9, 0, 0}))
 
 				Expect(err == nil).To(BeTrue())
 				Expect(val).To(Equal(3))
@@ -130,12 +131,9 @@ var _ = Describe("Grid Model tests", func() {
 	Describe("Testing update of a value on the sudoku grid", func() {
 		Context("Given a new value on a valid grid position", func() {
 			It("It should update grid position to a new value", func() {
-
 				grid, _ := NewGrid(gridNums)
 				grid.UpdateValueAt(1, 5, 7)
-
 				updatedValue, _ := grid.Read(1, 5)
-
 				Expect(updatedValue).To(Equal(7))
 			})
 		})
@@ -149,5 +147,16 @@ var _ = Describe("Grid Model tests", func() {
 			})
 		})
 
+	})
+
+	Describe("A test to find a bounding box values at a position", func() {
+		Context("Given a valid grid position", func() {
+			It("Should return non zero bounding values", func() {
+				grid, _ := NewGrid(gridNums)
+				vals := grid.GetBoxValuesAt(8, 8)
+				sort.Ints(vals)
+				Ω(vals).Should(Equal([]int{2, 4, 8}))
+			})
+		})
 	})
 })
