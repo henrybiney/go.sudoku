@@ -2,7 +2,6 @@ package solver
 
 import (
 	"fmt"
-	"github.com/golang-collections/collections/stack"
 	"strconv"
 	"strings"
 	. "sudoku/model"
@@ -42,55 +41,6 @@ func SpeculativeSolve(g Grid) (grid Grid, state string) {
 	if state == "COMPLETE" {
 		fmt.Printf("Solution found \n")
 		return
-	}
-
-	if state == "SPECULATION_REQUIRED" {
-		gridStack := stack.New()
-		gridStack.Push(grid)
-		fmt.Printf("%v, len %d\n", gridStack, gridStack.Len())
-
-		for gridStack.Len() != 0 {
-			//set row1,col1 to new value
-			//push that grid onto the stack
-			//solve it
-			var g1 interface{} = gridStack.Pop()
-			grid_ := g1.(Grid)
-			solver = New(grid_)
-			solver.BasicSolve()
-
-			currentConstraints := solver.constraints
-			for position, values := range currentConstraints {
-
-				rowColumn := strings.Split(position, ",")
-				row, _ := strconv.Atoi(rowColumn[0])
-				col, _ := strconv.Atoi(rowColumn[1])
-
-				for possibleValue := range values {
-
-					solver.grid.UpdateValueAt(row, col, possibleValue)
-					gridStack.Push(grid_)
-					g, s := solver.BasicSolve()
-
-					if s == "INCONSISTENT" {
-						fmt.Printf("Inconsistent grid\n")
-						g.PrintGrid()
-						gridStack.Pop()
-
-					}
-					if s == "SPECULATION_REQUIRED" {
-						fmt.Printf("Using row=%d, col=%d with value %d requires speculation\n", row, col, possibleValue)
-						g.PrintGrid()
-						gridStack.Push(g)
-					}
-				}
-			}
-
-			//if that grid leaves an inconsistent state
-			//then pop it off the top
-
-			//if it leads to speculation, push it onto the stack
-
-		}
 	}
 
 	return
@@ -246,3 +196,15 @@ func (s Solver) GetConstraintsAt(row, col int) (constraints map[int]int, err err
 
 	return
 }
+
+// S: use  a stack to track the current state of the Board
+
+// Each cell has a set of possible values Ci = {xi, .. , xn}
+// 					if Ci.value != 0
+
+// pick  Ci[0], push it onto the stack
+//  if tried all Ci and inconsistent; pop stack
+
+//  if inconsistent; try C[i+1]
+
+//  if consistent:  pick another Cell

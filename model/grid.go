@@ -15,6 +15,24 @@ func NewGridFromFile(file string) (g *Grid, err error) {
 	return nil, nil
 }
 
+func (g Grid) Copy() (newGrid *Grid) {
+
+	var vals []int
+
+	for rowNum := range g.sorted_keys {
+
+		row, _ := g.Row(rowNum + 1)
+
+		for _, rowVal := range row {
+
+			vals = append(vals, rowVal)
+		}
+	}
+	newGrid, _ = NewGrid(vals)
+
+	return
+}
+
 func NewGrid(vals []int) (g *Grid, err error) {
 
 	if vals == nil || len(vals) != 81 {
