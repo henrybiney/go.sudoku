@@ -5,34 +5,16 @@ import (
 	"sort"
 )
 
+// Grid represents a sudoku grid
 type Grid struct {
-	nums        map[int][]int
-	sorted_keys []int
+	nums       map[int][]Cell
+	sortedKeys []int
 }
 
-func NewGridFromFile(file string) (g *Grid, err error) {
-
-	return nil, nil
-}
-
-func (g Grid) Copy() (newGrid *Grid) {
-
-	var vals []int
-
-	for rowNum := range g.sorted_keys {
-
-		row, _ := g.Row(rowNum + 1)
-
-		for _, rowVal := range row {
-
-			vals = append(vals, rowVal)
-		}
-	}
-	newGrid, _ = NewGrid(vals)
-
-	return
-}
-
+// NewGrid initialises a sudoku grid
+// Returns initialized grid if values on the grid are ok
+// together with the status of the err
+// err is Nil if initialization was ok or non-nil if otherwise
 func NewGrid(vals []int) (g *Grid, err error) {
 
 	if vals == nil || len(vals) != 81 {
@@ -40,15 +22,15 @@ func NewGrid(vals []int) (g *Grid, err error) {
 		return
 	}
 
-	//TODO:check negative values, and values not between 0 and 9
-	rep := make(map[int][]int)
-	for i, j, row := 0, 0, 1; i < len(vals); i++ {
+	rep := make(map[int][]Cell)
+	for i, row, col := 0, 1, 1; i < len(vals); i++ {
+
+		rep[row] = append(rep[row], NewCell(row, col, vals[i]))
+		col++
 
 		if (i+1)%9 == 0 {
-
-			rep[row] = vals[j:(i + 1)]
-			row += 1
-			j = i + 1
+			row++
+			col = 1
 		}
 	}
 
@@ -58,10 +40,27 @@ func NewGrid(vals []int) (g *Grid, err error) {
 	}
 	sort.Ints(keys)
 
-	g = &Grid{nums: rep, sorted_keys: keys}
+	g = &Grid{nums: rep, sortedKeys: keys}
+
+	for row := 1; row <= 9; row++ {
+		for col := 1; col <= 9; col++ {
+			g.ComputePossibleValuesAt(row, col)
+		}
+	}
+	//g.nums[rowNum][colNum-1].SetPossibleValues(possibleVals)
 	return
 }
 
+func (g Grid) ShowConstraints() {
+	for _, row := range g.sortedKeys {
+		for _, cell := range g.nums[row] {
+			cell.PrintConstraints()
+
+		}
+	}
+}
+
+// PrintGrid prints the sudoku grid
 func (g *Grid) PrintGrid() {
 	fmt.Printf("-------------------------------------")
 	fmt.Printf("\n")
@@ -84,60 +83,79 @@ func (g *Grid) PrintGrid() {
 
 }
 
+// RowCount returns the number of rows in the grid
 func (g *Grid) RowCount() int {
 	return len(g.nums)
 }
 
+// Row Returns a Row given the row number
+// An error is returned if the row num less than or equal 0
+// or greater than 9
 func (g *Grid) Row(rowNum int) (row []int, err error) {
-	if rowNum <= 0 || rowNum > 9 {
+	if !isValidBound(rowNum) {
 		return nil, fmt.Errorf("The row at %d does not exist", rowNum)
 	}
-	row = g.nums[rowNum]
+	cells := g.nums[rowNum]
+	for _, cell := range cells {
+		row = append(row, cell.CellValue())
+	}
 	return
 }
 
-//one based
+// Column Returns a Column given the row number
+// An error is returned if the row num less than or equal 0
+// or greater than 9
 func (g *Grid) Column(colNum int) (col []int, err error) {
 
-	if colNum <= 0 || colNum > 9 {
+	if !isValidBound(colNum) {
 		err = fmt.Errorf("grid: column number must be between 0 and 9 but got %d", colNum)
 		return
 	}
 
 	//sort keys
-	for _, key := range g.sorted_keys {
-		col = append(col, g.nums[key][colNum-1])
+	for _, key := range g.sortedKeys {
+		col = append(col, g.nums[key][colNum-1].CellValue())
 	}
 
+	return
+}
+
+//TODO Write test
+func (g Grid) ReadCell(row, col int) (cell Cell, err error) {
+	if !isValidBound(row) || !isValidBound(col) {
+		return cell, fmt.Errorf("grid: rownum %d or col %d must be gt 10 or lt 0 ", row, col)
+	}
+	cell = g.nums[row][col-1]
 	return
 }
 
 func (g *Grid) Read(rowNum, colNum int) (val int, err error) {
 
-	if rowNum <= 0 || rowNum > 9 {
-		return val, fmt.Errorf("grid: rownum %d must be gt 10 or lt 0 ", rowNum)
+	if !isValidBound(rowNum) || !isValidBound(colNum) {
+		return val, fmt.Errorf("grid: rownum %d or col %d must be gt 10 or lt 0 ", rowNum, colNum)
 	}
 
-	if colNum <= 0 || colNum > 9 {
-		return val, fmt.Errorf("grid: colnum %d must be gt 10 or lt 0 ", colNum)
-	}
-
-	val = g.nums[rowNum][colNum-1]
+	val = g.nums[rowNum][colNum-1].CellValue()
 
 	return
 }
 
+func isValidBound(position int) bool {
+	return !(position <= 0 || position > 9)
+
+}
+
+// UpdateValueAt updates a value at row and column
 func (g *Grid) UpdateValueAt(rowNum, colNum, newValue int) (err error) {
-	if rowNum <= 0 || rowNum > 9 {
+	if !isValidBound(rowNum) || !isValidBound(colNum) {
 		err = fmt.Errorf("Invalid row %d or column %d on grid", rowNum, colNum)
 		return
 	}
-
-	g.nums[rowNum][colNum-1] = newValue
+	g.nums[rowNum][colNum-1].NewValue(newValue)
 	return
 }
 
-//TODO: Is this supposed to be in the solver module or here?
+//ConstraintsAt  Is this supposed to be in the solver module or here?
 func (g *Grid) ConstraintsAt(rowNum, colNum int) (constraints []int, err error) {
 
 	val, err := g.Read(rowNum, colNum)
@@ -152,10 +170,51 @@ func (g *Grid) ConstraintsAt(rowNum, colNum int) (constraints []int, err error) 
 	return
 }
 
+// ComputePossibleValuesAt  returns some value at the row
+func (g *Grid) ComputePossibleValuesAt(row, col int) {
+
+	if val, err := g.Read(row, col); err != nil || val != 0 {
+		return
+	}
+
+	rowValues, errRow := g.Row(row)
+	colValues, errCol := g.Column(col)
+	boxValues := g.GetBoxValuesAt(row, col)
+
+	if errRow != nil || errCol != nil {
+		return
+	}
+
+	possibleValues := map[int]int{1: 1, 2: 2, 3: 3,
+		4: 4, 5: 5, 6: 6,
+		7: 7, 8: 8, 9: 9}
+	//delete row values from the set of possible values
+	for i := 0; i < len(rowValues); i++ {
+		delete(possibleValues, rowValues[i])
+	}
+	//delete col values from the set of possible values
+	for i := 0; i < len(colValues); i++ {
+		delete(possibleValues, colValues[i])
+	}
+	//delete box values from the set of possible constraints
+	for i := 0; i < len(boxValues); i++ {
+		delete(possibleValues, boxValues[i])
+	}
+	var possValArr []int
+
+	for i := range possibleValues {
+		possValArr = append(possValArr, i)
+	}
+
+	g.nums[row][col-1].SetPossibleValues(possValArr)
+
+}
+
+//GetBoxValuesAt Returns bounding values in a sudoku box (3x3 box)
 func (g *Grid) GetBoxValuesAt(rowNum, colNum int) (boxValues []int) {
 
 	bounds := getBox(rowNum, colNum)
-	var val int = 0
+	var val int
 	for i := bounds.rowSt; i <= bounds.rowEnd; i++ {
 		for j := bounds.colSt; j <= bounds.colEnd; j++ {
 			if val, _ = g.Read(i, j); val != 0 {
