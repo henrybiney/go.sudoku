@@ -1,10 +1,11 @@
 package model_test
 
 import (
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
 	"sort"
 	. "sudoku/model"
+
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("Grid Model tests", func() {
@@ -55,6 +56,44 @@ var _ = Describe("Grid Model tests", func() {
 				Ω(row4).Should(Equal([]int{0, 0, 3, 0, 0, 0, 8, 0, 0}))
 
 				Ω(row9).Should(Equal([]int{0, 5, 0, 0, 7, 1, 0, 8, 0}))
+
+				grid.ShowConstraints()
+			})
+		})
+	})
+
+	Describe("Testing cell iteration", func() {
+		Context("Given an initialized cell", func() {
+
+			It("Possible values should be false ", func() {
+				cell := NewCell(1, 1, 9)
+				_, ok := cell.NextPossibleValue()
+				Expect(ok).To(BeFalse())
+			})
+		})
+
+		Context("Given an initialized cell with possibleValues", func() {
+			It("Should return possible values when next is called", func() {
+				cell := NewCell(2, 1, 2)
+				cell.SetPossibleValues([]int{8, 9, 2})
+
+				val, _ := cell.NextPossibleValue()
+				Expect(val).To(Equal(2))
+
+				val, _ = cell.NextPossibleValue()
+				Expect(val).To(Equal(8))
+
+				val, _ = cell.NextPossibleValue()
+				Expect(val).To(Equal(9))
+
+				val, ok := cell.NextPossibleValue()
+				Expect(val).To(Equal(0))
+				Expect(ok).To(BeFalse())
+
+				cell.ResetIterator()
+				val, _ = cell.NextPossibleValue()
+				Expect(val).To(Equal(2))
+
 			})
 		})
 	})
@@ -98,10 +137,10 @@ var _ = Describe("Grid Model tests", func() {
 
 				Expect(err == nil).To(BeTrue())
 				Expect(val).To(Equal(3))
-				val, err = grid.Read(8, 8)
+				val, _ = grid.Read(8, 8)
 				Expect(val).To(Equal(2))
 
-				val, err = grid.Read(9, 5)
+				val, _ = grid.Read(9, 5)
 				Expect(val).To(Equal(7))
 			})
 		})
