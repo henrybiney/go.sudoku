@@ -86,7 +86,7 @@ func (s *Solver) BasicSolve() (solution Grid, state string) {
 func (s *Solver) ComputeAllPossibleValues() {
 	for i := 1; i <= 9; i++ {
 		for j := 1; j <= 9; j++ {
-			s.ComputePossibleValuesAt(i, j)
+			//	s.ComputePossibleValuesAt(i, j)
 		}
 
 	}
@@ -94,55 +94,6 @@ func (s *Solver) ComputeAllPossibleValues() {
 
 //take a look at zero marked cells and
 //compute its possible values
-func (s *Solver) ComputePossibleValuesAt(row, col int) {
-	//TODO: CHECK IF THIS IS DUPLICATE LOGIC
-	var val int
-	var err error
-
-	if val, err = s.grid.Read(row, col); err != nil || val != 0 {
-		return
-	}
-	//value at row, col cannot be in
-	// rowValues or colValues or boxValues
-	rowValues, errRow := s.grid.Row(row)
-	colValues, errCol := s.grid.Column(col)
-	boxValues := s.grid.GetBoxValuesAt(row, col)
-
-	//TODO: We need box constraints too
-
-	if errRow != nil || errCol != nil {
-		return
-	}
-
-	key := fmt.Sprintf("%d,%d", row, col)
-
-	s.constraints[key] = map[int]int{1: 1, 2: 2, 3: 3,
-		4: 4, 5: 5, 6: 6,
-		7: 7, 8: 8, 9: 9}
-
-	setVal := 0
-
-	//delete row values from the set of possible values
-	for i := 0; i < len(rowValues); i++ {
-		setVal = rowValues[i]
-		delete(s.constraints[key], setVal)
-	}
-
-	//delete col values from the set of possible values
-	for i := 0; i < len(colValues); i++ {
-		setVal = colValues[i]
-		delete(s.constraints[key], setVal)
-	}
-
-	//delete box values from the set of possible constraints
-	for i := 0; i < len(boxValues); i++ {
-		setVal = boxValues[i]
-		delete(s.constraints[key], setVal)
-
-	}
-
-	//what remains is the set of possible values
-}
 
 //TODO:FIX THIS
 func (s Solver) checkGridState() (state string) {

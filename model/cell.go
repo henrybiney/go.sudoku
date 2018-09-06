@@ -22,10 +22,12 @@ func NewCell(row, col, value int) Cell {
 
 }
 
+// CellValue return the value of this cell
 func (c Cell) CellValue() int {
 	return c.value
 }
 
+// NewValue Update the value of a cell
 func (c *Cell) NewValue(n int) {
 	c.value = n
 }
@@ -52,6 +54,11 @@ func (c *Cell) NextPossibleValue() (value int, ok bool) {
 	return
 }
 
+func (c *Cell) PossibleValues() []int {
+	return c.possibleValues
+}
+
+//PrintConstraints prints possible values for this cell
 func (c Cell) PrintConstraints() {
 
 	fmt.Printf("Constraints at row %d , col %d are %v. Cell value: %d, size: %d\n",

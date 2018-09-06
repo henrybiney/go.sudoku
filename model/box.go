@@ -8,8 +8,7 @@ type box struct {
 }
 
 func getBox(row, col int) (bounds box) {
-
-	minRow, maxRow := 0, 0
+	var minRow, maxRow int
 
 	if row >= 1 && row <= 3 {
 		minRow, maxRow = 1, 3

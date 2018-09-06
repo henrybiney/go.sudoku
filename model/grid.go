@@ -42,15 +42,20 @@ func NewGrid(vals []int) (g *Grid, err error) {
 
 	g = &Grid{nums: rep, sortedKeys: keys}
 
+	g.computeAllConstraints()
+	//g.nums[rowNum][colNum-1].SetPossibleValues(possibleVals)
+	return
+}
+
+func (g *Grid) computeAllConstraints() {
 	for row := 1; row <= 9; row++ {
 		for col := 1; col <= 9; col++ {
 			g.ComputePossibleValuesAt(row, col)
 		}
 	}
-	//g.nums[rowNum][colNum-1].SetPossibleValues(possibleVals)
-	return
 }
 
+// ShowConstraints print cells and their possible values
 func (g Grid) ShowConstraints() {
 	for _, row := range g.sortedKeys {
 		for _, cell := range g.nums[row] {
@@ -120,12 +125,12 @@ func (g *Grid) Column(colNum int) (col []int, err error) {
 	return
 }
 
-//TODO Write test
-func (g Grid) ReadCell(row, col int) (cell Cell, err error) {
+//ReadCell reads a  cell on a grid given the rowNum and column number
+func (g Grid) ReadCell(row, col int) (cell *Cell, err error) {
 	if !isValidBound(row) || !isValidBound(col) {
 		return cell, fmt.Errorf("grid: rownum %d or col %d must be gt 10 or lt 0 ", row, col)
 	}
-	cell = g.nums[row][col-1]
+	cell = &g.nums[row][col-1]
 	return
 }
 
