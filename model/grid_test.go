@@ -2,7 +2,8 @@ package model_test
 
 import (
 	"sort"
-	. "sudoku/model"
+
+	. "go.sudoku/model"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
