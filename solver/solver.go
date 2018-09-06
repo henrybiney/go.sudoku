@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
-	. "sudoku/model"
+
+	. "go.sudoku/model"
 )
 
 type Solver struct {

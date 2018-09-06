@@ -2,7 +2,8 @@ package solver
 
 import (
 	"fmt"
-	. "sudoku/model"
+
+	. "go.sudoku/model"
 )
 
 func BasicSolve(grid Grid) (solution Grid) {

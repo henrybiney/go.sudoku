@@ -3,10 +3,11 @@ package solver_test
 import (
 	"fmt"
 	"sort"
-	"sudoku/examples"
-	"sudoku/model"
-	"sudoku/solver"
 	"testing"
+
+	"go.sudoku/examples"
+	"go.sudoku/model"
+	"go.sudoku/solver"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
