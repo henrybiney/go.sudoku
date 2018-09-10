@@ -80,6 +80,7 @@ var _ = Describe("Sudoku Solver Suite", func() {
 	// 			constraints, _ := s.GetConstraintsAt(3, 2)
 	// 			sortedConstraints := sortIntMapByKey(constraints)
 	// 			Ω(sortedConstraints).Should(Equal([]int{4, 9}))
+
 	// 		})
 	//
 	// 	})

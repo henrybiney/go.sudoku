@@ -223,8 +223,8 @@ func (g *Grid) GetBoxValuesAt(rowNum, colNum int) (boxValues []int) {
 	var val int
 	for i := bounds.rowSt; i <= bounds.rowEnd; i++ {
 		for j := bounds.colSt; j <= bounds.colEnd; j++ {
-			if val, _ = g.Read(i, j); val != 0 {
 
+			if val, _ = g.Read(i, j); val != 0 {
 				boxValues = append(boxValues, val)
 			}
 		}
