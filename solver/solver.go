@@ -13,31 +13,26 @@ const (
 )
 
 type Solver struct {
-
 	//the current grid that is being solved
 	grid Grid
 }
 
 func New(g Grid) Solver {
-
 	return Solver{grid: g}
 }
 
 func (s *Solver) Solve() Grid {
-
 	grid, state := s.BasicSolve()
-
 	if state == COMPLETE {
 		return grid
 	}
-
 	return grid
 }
 
+//TODO: Add speculative solve; not complete!
 func speculativeSolve(g Grid) (grid Grid, state int) {
 	solver := New(g)
 	grid, state = solver.BasicSolve()
-
 	//if this yields an inconsistent state then
 	//return unsolved
 	if state == INCONSISTENT {
@@ -46,12 +41,10 @@ func speculativeSolve(g Grid) (grid Grid, state int) {
 		//TODO: Add speculation
 		return
 	}
-
 	if state == COMPLETE {
 		fmt.Printf("Solution found \n")
 		return
 	}
-
 	return
 }
 
@@ -65,7 +58,6 @@ func (s *Solver) BasicSolve() (solution Grid, state int) {
 		//after we compute all possible values for cells
 		//we find the cell with just one possible value
 		cellsWithSingleConstraints := s.findCellsWithSingleConstraints()
-
 		if cellsWithSingleConstraints != nil {
 			changing = true
 
@@ -88,7 +80,6 @@ func (s *Solver) BasicSolve() (solution Grid, state int) {
 	state = s.checkGridState()
 
 	return solution, state
-
 }
 
 //ComputeAllPossibleValues Computes all constraints in cells
@@ -117,18 +108,14 @@ func (s Solver) checkGridState() (state int) {
 		fmt.Printf("Solution found with no speculation \n")
 		state = COMPLETE
 	}
-
 	return state
 }
 
 func (s Solver) findCellsWithSingleConstraints() (cellPositions []*Cell) {
-
 	var grid Grid = s.grid
 
 	for rowNum := 1; rowNum <= 9; rowNum++ {
-
 		for colNum := 1; colNum <= 9; colNum++ {
-
 			cell, _ := grid.ReadCell(rowNum, colNum)
 			if len(cell.PossibleValues()) == 1 && cell.CellValue() == 0 {
 				cellPositions = append(cellPositions, cell)
@@ -136,6 +123,5 @@ func (s Solver) findCellsWithSingleConstraints() (cellPositions []*Cell) {
 		}
 
 	}
-
 	return cellPositions
 }
