@@ -12,4 +12,4 @@ I have also chosen to write a simple front-end in [Elm](https://elm-lang.org/). 
 - Add Speculative solver
 - Add Elm front end
 - Allow posts of Sudoku images; Use ML to decode and solve
-- Deploy to [Heroku](https://www.heroku.com/)
+- Deploy to [Heroku](https://www.heroku.com/go)
