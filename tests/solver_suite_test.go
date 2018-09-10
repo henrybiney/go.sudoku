@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"fmt"
 	"sort"
 	"testing"
 
@@ -47,9 +46,8 @@ var _ = Describe("Sudoku Solver Suite", func() {
 			It("Should return a complete state", func() {
 
 				grid, state := mSolver.BasicSolve()
-				fmt.Printf("Solution found - no speculationi\n")
 				grid.PrintGrid()
-				Expect(state).To(Equal("COMPLETE"))
+				Expect(state).To(Equal(solver.COMPLETE))
 			})
 
 		})
@@ -60,7 +58,7 @@ var _ = Describe("Sudoku Solver Suite", func() {
 			It("Should return a 'REQUIRES_SPECULATION' state", func() {
 				grid, state := mSolver.BasicSolve()
 				grid.PrintGrid()
-				Expect(state).To(Equal("REQUIRES_SPECULATION"))
+				Expect(state).To(Equal(solver.REQUIRES_SPECULATION))
 			})
 		})
 	})

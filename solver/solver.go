@@ -6,6 +6,12 @@ import (
 	. "go.sudoku/model"
 )
 
+const (
+	COMPLETE             = 0
+	REQUIRES_SPECULATION = 1
+	INCONSISTENT         = 2
+)
+
 type Solver struct {
 
 	//the current grid that is being solved
@@ -21,26 +27,27 @@ func (s *Solver) Solve() Grid {
 
 	grid, state := s.BasicSolve()
 
-	if state == "COMPLETE" {
+	if state == COMPLETE {
 		return grid
 	}
 
 	return grid
 }
 
-func speculativeSolve(g Grid) (grid Grid, state string) {
+func speculativeSolve(g Grid) (grid Grid, state int) {
 	solver := New(g)
 	grid, state = solver.BasicSolve()
 
 	//if this yields an inconsistent state then
 	//return unsolved
-	if state == "INCONSISTENT" {
+	if state == INCONSISTENT {
 		fmt.Printf("Inconsistent grid \n")
 		grid.PrintGrid()
+		//TODO: Add speculation
 		return
 	}
 
-	if state == "COMPLETE" {
+	if state == COMPLETE {
 		fmt.Printf("Solution found \n")
 		return
 	}
@@ -48,7 +55,8 @@ func speculativeSolve(g Grid) (grid Grid, state string) {
 	return
 }
 
-func (s *Solver) BasicSolve() (solution Grid, state string) {
+//BasicSolve A simple solver. Solves sudoku's which require no speculation
+func (s *Solver) BasicSolve() (solution Grid, state int) {
 	changing := true
 	for changing {
 
@@ -83,6 +91,7 @@ func (s *Solver) BasicSolve() (solution Grid, state string) {
 
 }
 
+//ComputeAllPossibleValues Computes all constraints in cells
 func (s *Solver) ComputeAllPossibleValues() {
 	for i := 1; i <= 9; i++ {
 		for j := 1; j <= 9; j++ {
@@ -97,14 +106,16 @@ func (s *Solver) ComputeAllPossibleValues() {
 //compute its possible values
 
 //TODO:FIX THIS
-func (s Solver) checkGridState() (state string) {
+func (s Solver) checkGridState() (state int) {
 	//check state
 	var requiresSpeculation = s.grid.HasRemainingConstraints()
 
 	if requiresSpeculation {
-		state = "REQUIRES_SPECULATION"
+		fmt.Printf("Requires speculation \n")
+		state = REQUIRES_SPECULATION
 	} else {
-		state = "COMPLETE"
+		fmt.Printf("Solution found with no speculation \n")
+		state = COMPLETE
 	}
 
 	return state
