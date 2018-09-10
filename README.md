@@ -7,3 +7,9 @@ I have tried my best to steer away from using third party libraries where I can.
 
 ### The front end
 I have also chosen to write a simple front-end in [Elm](https://elm-lang.org/). None of the frontend written yet!
+
+### Work in progress
+- Add Speculative solver
+- Add Elm front end
+- Allow posts of Sudoku images; Use ML to decode and solve
+- Deploy to [Heroku](https://www.heroku.com/)
