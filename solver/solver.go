@@ -2,21 +2,11 @@ package solver
 
 import (
 	"fmt"
-	"strconv"
-	"strings"
 
 	. "go.sudoku/model"
 )
 
 type Solver struct {
-
-	//we will store grid constraints in a map for fast retrieval
-	//key = string  eg.  "1,2" - constraints a row 1, column 2
-
-	//constraint values will also be stored in map for fast updates
-	// eg. {9:9, 8:8}
-	// key: 1,2 ,  val: {9:9, 8:8}. possible values at position 1,2 are 9 and 8
-	constraints map[string]map[int]int
 
 	//the current grid that is being solved
 	grid Grid
@@ -24,10 +14,21 @@ type Solver struct {
 
 func New(g Grid) Solver {
 
-	return Solver{constraints: make(map[string]map[int]int), grid: g}
+	return Solver{grid: g}
 }
 
-func SpeculativeSolve(g Grid) (grid Grid, state string) {
+func (s *Solver) Solve() Grid {
+
+	grid, state := s.BasicSolve()
+
+	if state == "COMPLETE" {
+		return grid
+	}
+
+	return grid
+}
+
+func speculativeSolve(g Grid) (grid Grid, state string) {
 	solver := New(g)
 	grid, state = solver.BasicSolve()
 
@@ -60,16 +61,14 @@ func (s *Solver) BasicSolve() (solution Grid, state string) {
 		if cellsWithSingleConstraints != nil {
 			changing = true
 
-			for _, key := range cellsWithSingleConstraints {
+			for _, cell := range cellsWithSingleConstraints {
+				cellValue, _ := cell.NextPossibleValue()
+				fmt.Printf("Updating row %d, col %d with value %d\n", cell.CellRow(), cell.CellColumn(), cellValue)
+				cell.NewValue(cellValue)
 
-				rowColumn := strings.Split(key, ",")
-				row, _ := strconv.Atoi(rowColumn[0])
-				col, _ := strconv.Atoi(rowColumn[1])
+				s.grid.PrintGrid()
+				cell.ResetIterator()
 
-				for _, v := range s.constraints[key] {
-					s.grid.UpdateValueAt(row, col, v)
-					delete(s.constraints, key)
-				}
 			}
 		}
 	}
@@ -88,6 +87,7 @@ func (s *Solver) ComputeAllPossibleValues() {
 	for i := 1; i <= 9; i++ {
 		for j := 1; j <= 9; j++ {
 			//	s.ComputePossibleValuesAt(i, j)
+			s.grid.ComputePossibleValuesAt(i, j)
 		}
 
 	}
@@ -99,64 +99,32 @@ func (s *Solver) ComputeAllPossibleValues() {
 //TODO:FIX THIS
 func (s Solver) checkGridState() (state string) {
 	//check state
-	if len(s.constraints) == 0 {
-		state = "COMPLETE"
-		return
-	}
-	inconsistent := false
+	var requiresSpeculation = s.grid.HasRemainingConstraints()
 
-	for _, consts := range s.constraints {
-		if len(consts) == 0 {
-			inconsistent = true
-			break
-		}
-	}
-
-	if inconsistent {
-		state = "INCONSISTENT"
+	if requiresSpeculation {
+		state = "REQUIRES_SPECULATION"
 	} else {
-
-		state = "SPECULATION_REQUIRED"
+		state = "COMPLETE"
 	}
 
-	return
-
+	return state
 }
 
-func (s Solver) findCellsWithSingleConstraints() (cellPositions []string) {
-	//TODO: Cache this when we compute; do this in ComputePossibleValueAt(i,j)
+func (s Solver) findCellsWithSingleConstraints() (cellPositions []*Cell) {
 
-	for cellPosition := range s.constraints {
-		constraints, ok := s.constraints[cellPosition]
-		if ok && len(constraints) == 1 {
-			cellPositions = append(cellPositions, cellPosition)
+	var grid Grid = s.grid
+
+	for rowNum := 1; rowNum <= 9; rowNum++ {
+
+		for colNum := 1; colNum <= 9; colNum++ {
+
+			cell, _ := grid.ReadCell(rowNum, colNum)
+			if len(cell.PossibleValues()) == 1 && cell.CellValue() == 0 {
+				cellPositions = append(cellPositions, cell)
+			}
 		}
-	}
-	return
-}
 
-func (s Solver) GetConstraintsAt(row, col int) (constraints map[int]int, err error) {
-
-	key := fmt.Sprintf("%d,%d", row, col)
-
-	constraints, ok := s.constraints[key]
-
-	if !ok {
-		err = fmt.Errorf("Could not find constraints @ row %d, column %d", row, col)
-		return
 	}
 
-	return
+	return cellPositions
 }
-
-// S: use  a stack to track the current state of the Board
-
-// Each cell has a set of possible values Ci = {xi, .. , xn}
-// 					if Ci.value != 0
-
-// pick  Ci[0], push it onto the stack
-//  if tried all Ci and inconsistent; pop stack
-
-//  if inconsistent; try C[i+1]
-
-//  if consistent:  pick another Cell

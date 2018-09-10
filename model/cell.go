@@ -22,6 +22,14 @@ func NewCell(row, col, value int) Cell {
 
 }
 
+func (c *Cell) CellRow() int {
+	return c.row
+}
+
+func (c *Cell) CellColumn() int {
+	return c.col
+}
+
 // CellValue return the value of this cell
 func (c Cell) CellValue() int {
 	return c.value

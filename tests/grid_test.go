@@ -1,4 +1,4 @@
-package model_test
+package tests
 
 import (
 	"sort"
@@ -30,7 +30,7 @@ var _ = Describe("Grid Model tests", func() {
 		badGrid = []int{0, 0, 0, 2, 1, 2, 2, 0, 88}
 	})
 
-	Describe("Testing initialization", func() {
+	Describe("Initialization Test:", func() {
 		Context("Given an bad array, with less than 81 nums", func() {
 			It("Should return an error", func() {
 
@@ -58,12 +58,12 @@ var _ = Describe("Grid Model tests", func() {
 
 				Ω(row9).Should(Equal([]int{0, 5, 0, 0, 7, 1, 0, 8, 0}))
 
-				grid.ShowConstraints()
+				//grid.ShowConstraints()
 			})
 		})
 	})
 
-	Describe("Testing cell iteration", func() {
+	Describe("Cell Iteration Test: ", func() {
 		Context("Given an initialized cell", func() {
 
 			It("Possible values should be false ", func() {
@@ -99,7 +99,7 @@ var _ = Describe("Grid Model tests", func() {
 		})
 	})
 
-	Describe("Testing valid invalid row and column retrieval", func() {
+	Describe("Invalid row and column retrieval Test:", func() {
 		Context("Given an invalid row number", func() {
 			It("Should return an error", func() {
 
@@ -147,19 +147,19 @@ var _ = Describe("Grid Model tests", func() {
 		})
 	})
 
-	Describe("Testing retrieval of constraints at grid position", func() {
+	Describe("Constraint retrieval Test:", func() {
 		Context("Given a grid position with no constraints", func() {
 			It("Should return an error", func() {
 				grid, _ := NewGrid(gridNums)
 				//the value at row 1, colum 2
-				constraints, err := grid.ConstraintsAt(1, 2)
-				Expect(err != nil).To(BeTrue())
+				constraints, _ := grid.ConstraintsAt(1, 2)
+
 				Expect(constraints == nil).To(BeTrue())
 			})
 		})
 
 		Context("Given a grid position not on the board", func() {
-			It("Should return an error", func() {
+			It("Constraint retrieval should return an error", func() {
 
 				grid, _ := NewGrid(gridNums)
 				_, err := grid.ConstraintsAt(-1, 12)
@@ -168,7 +168,8 @@ var _ = Describe("Grid Model tests", func() {
 		})
 
 	})
-	Describe("Testing update of a value on the sudoku grid", func() {
+
+	Describe("Grid update Test:", func() {
 		Context("Given a new value on a valid grid position", func() {
 			It("It should update grid position to a new value", func() {
 				grid, _ := NewGrid(gridNums)
@@ -189,7 +190,7 @@ var _ = Describe("Grid Model tests", func() {
 
 	})
 
-	Describe("A test to find a bounding box values at a position", func() {
+	Describe("Bounding box Test: ", func() {
 		Context("Given a valid grid position", func() {
 			It("Should return non zero bounding values", func() {
 				grid, _ := NewGrid(gridNums)

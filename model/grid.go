@@ -67,8 +67,7 @@ func (g Grid) ShowConstraints() {
 
 // PrintGrid prints the sudoku grid
 func (g *Grid) PrintGrid() {
-	fmt.Printf("-------------------------------------")
-	fmt.Printf("\n")
+	fmt.Printf("-------------------------------------\n")
 	for i := 1; i <= 9; i++ {
 
 		for j := 1; j <= 9; j++ {
@@ -163,14 +162,16 @@ func (g *Grid) UpdateValueAt(rowNum, colNum, newValue int) (err error) {
 //ConstraintsAt  Is this supposed to be in the solver module or here?
 func (g *Grid) ConstraintsAt(rowNum, colNum int) (constraints []int, err error) {
 
-	val, err := g.Read(rowNum, colNum)
+	_, err = g.Read(rowNum, colNum)
 
-	if val != 0 || err != nil {
+	if err != nil {
 		err = fmt.Errorf("There was an error reading constraints at row %d, col %d",
 			rowNum, colNum)
+
 		return constraints, err
 
 	}
+	constraints, err = g.nums[rowNum][colNum-1].PossibleValues(), nil
 
 	return
 }
@@ -230,4 +231,18 @@ func (g *Grid) GetBoxValuesAt(rowNum, colNum int) (boxValues []int) {
 	}
 
 	return
+}
+
+//TODO: Not sure about this
+func (g *Grid) HasRemainingConstraints() bool {
+
+	var hasRemainingConstraints = false
+	for rowNum := 1; rowNum <= 9; rowNum++ {
+		for colNum := 1; colNum <= 9; colNum++ {
+			cell, _ := g.ReadCell(rowNum, colNum)
+			val := cell.CellValue()
+			hasRemainingConstraints = hasRemainingConstraints || val == 0
+		}
+	}
+	return hasRemainingConstraints
 }
