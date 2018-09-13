@@ -11,7 +11,7 @@ type Grid struct {
 	sortedKeys []int
 }
 
-// NewGrid initialises a sudoku grid
+// NewGrid : initialises a sudoku grid
 // Returns initialized grid if values on the grid are ok
 // together with the status of the err
 // err is Nil if initialization was ok or non-nil if otherwise
@@ -55,7 +55,7 @@ func (g *Grid) computeAllConstraints() {
 	}
 }
 
-// ShowConstraints print cells and their possible values
+// ShowConstraints : print cells and their possible values
 func (g Grid) ShowConstraints() {
 	for _, row := range g.sortedKeys {
 		for _, cell := range g.nums[row] {
@@ -65,7 +65,7 @@ func (g Grid) ShowConstraints() {
 	}
 }
 
-// PrintGrid prints the sudoku grid
+// PrintGrid :prints the sudoku grid
 func (g *Grid) PrintGrid() {
 	fmt.Printf("-------------------------------------\n")
 	for i := 1; i <= 9; i++ {
@@ -87,7 +87,7 @@ func (g *Grid) PrintGrid() {
 
 }
 
-// RowCount returns the number of rows in the grid
+// RowCount : returns the number of rows in the grid
 func (g *Grid) RowCount() int {
 	return len(g.nums)
 }
@@ -124,7 +124,7 @@ func (g *Grid) Column(colNum int) (col []int, err error) {
 	return
 }
 
-//ReadCell reads a  cell on a grid given the rowNum and column number
+//ReadCell : reads a  cell on a grid given the rowNum and column number
 func (g Grid) ReadCell(row, col int) (cell *Cell, err error) {
 	if !isValidBound(row) || !isValidBound(col) {
 		return cell, fmt.Errorf("grid: rownum %d or col %d must be gt 10 or lt 0 ", row, col)
@@ -159,7 +159,7 @@ func (g *Grid) UpdateValueAt(rowNum, colNum, newValue int) (err error) {
 	return
 }
 
-//ConstraintsAt  Is this supposed to be in the solver module or here?
+//ConstraintsAt  : Is this supposed to be in the solver module or here?
 func (g *Grid) ConstraintsAt(rowNum, colNum int) (constraints []int, err error) {
 
 	_, err = g.Read(rowNum, colNum)
@@ -176,7 +176,20 @@ func (g *Grid) ConstraintsAt(rowNum, colNum int) (constraints []int, err error) 
 	return
 }
 
-// ComputePossibleValuesAt  returns some value at the row
+func (g *Grid) ReadCellsWithConstraints() (cells []*Cell) {
+
+	for i := 1; i <= 9; i++ {
+		for j := 1; j <= 9; j++ {
+			cell, _ := g.ReadCell(i, j)
+			if cell.CellValue() == 0 && len(cell.PossibleValues()) > 1 {
+				cells = append(cells, cell)
+			}
+		}
+	}
+	return
+}
+
+// ComputePossibleValuesAt  : returns some value at the row
 func (g *Grid) ComputePossibleValuesAt(row, col int) {
 
 	if val, err := g.Read(row, col); err != nil || val != 0 {
@@ -233,7 +246,7 @@ func (g *Grid) GetBoxValuesAt(rowNum, colNum int) (boxValues []int) {
 	return
 }
 
-//TODO: Not sure about this
+//HasRemainingConstraints : Check if a cell has more constraints
 func (g *Grid) HasRemainingConstraints() bool {
 
 	var hasRemainingConstraints = false
@@ -245,4 +258,20 @@ func (g *Grid) HasRemainingConstraints() bool {
 		}
 	}
 	return hasRemainingConstraints
+}
+
+//CopyGrid : Make a deep copy of the Grid
+//This looks rather ugly;
+func (g Grid) CopyGrid() (newGrid Grid) {
+
+	newGrid.sortedKeys = make([]int, len(g.sortedKeys))
+	newGrid.nums = make(map[int][]Cell)
+	copy(newGrid.sortedKeys, g.sortedKeys)
+
+	for k, v := range g.nums {
+		newGrid.nums[k] = make([]Cell, len(v))
+		copy(newGrid.nums[k], v)
+	}
+	return
+
 }

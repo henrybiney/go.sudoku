@@ -6,31 +6,84 @@ import (
 	. "go.sudoku/model"
 )
 
+//State : The state of an attempt by the Solver
+type State int
+
 const (
-	COMPLETE             = 0
-	REQUIRES_SPECULATION = 1
-	INCONSISTENT         = 2
+	//COMPLETE : Solved; all cells yielded a solution
+	COMPLETE State = iota
+
+	//REQUIRES_SPECULATION : One or more cells have 2 or more possible values
+	REQUIRES_SPECULATION
+
+	//INCONSISTENT : One or more cells cannot be filled with a value
+	INCONSISTENT
 )
 
+//Solver : Represents a solver
 type Solver struct {
 	//the current grid that is being solved
 	grid Grid
 }
 
+//New :  Create a new solver
 func New(g Grid) Solver {
 	return Solver{grid: g}
 }
 
+//Solve : Attempt to solve using speculation or basicSolve
 func (s *Solver) Solve() Grid {
 	grid, state := s.BasicSolve()
 	if state == COMPLETE {
 		return grid
 	}
+
+	var stack []*Cell
+
+	var multCells []*Cell = grid.ReadCellsWithConstraints()
+	var filled = 81 - len(multCells)
+
+	var idx int = 0
+
+	for filled <= 81 && idx < len(multCells) {
+
+		val := multCells[idx]
+		stack = append(stack, val)
+		// if can fill cell
+		if nextVal, okVal := val.NextPossibleValue(); okVal {
+			//if can fill grid with nextVal then
+			grid.UpdateValueAt(val.CellRow(), val.CellColumn(), nextVal)
+			s.ComputeAllPossibleValues()
+			filled++
+			idx++
+			//fmt.Printf("**SpecSolve****  row %d, col %d  with %d\n", val.CellRow(), val.CellColumn(), val.CellValue())
+			//grid.PrintGrid()
+			//check bounds,
+		} else {
+			//
+			//fmt.Printf("**SpecSolve Backtracking ... row %d, col %d\n", val.CellRow(), val.CellColumn())
+			//fmt.Printf("Possible vals %v\n", val.PossibleValues())
+			//fmt.P	rintf("Changing row %d, col %d back to 0")
+			val = stack[len(stack)-1]
+			//fmt.Printf("Reset previous cell. row %d, col %d to 0\n", val.CellRow(), val.CellColumn())
+			val.ResetIterator()
+			val.NewValue(0)
+			s.ComputeAllPossibleValues()
+			stack = stack[:len(stack)-1]
+
+			//if stack is empty and I've tried everything; return inconsistent
+			filled--
+			idx--
+			//grid.PrintGrid()
+		}
+
+	}
+
 	return grid
 }
 
 //TODO: Add speculative solve; not complete!
-func speculativeSolve(g Grid) (grid Grid, state int) {
+func speculativeSolve(g Grid) (grid Grid, state State) {
 	solver := New(g)
 	grid, state = solver.BasicSolve()
 	//if this yields an inconsistent state then
@@ -49,7 +102,7 @@ func speculativeSolve(g Grid) (grid Grid, state int) {
 }
 
 //BasicSolve A simple solver. Solves sudoku's which require no speculation
-func (s *Solver) BasicSolve() (solution Grid, state int) {
+func (s *Solver) BasicSolve() (solution Grid, state State) {
 	changing := true
 	for changing {
 
@@ -93,11 +146,7 @@ func (s *Solver) ComputeAllPossibleValues() {
 	}
 }
 
-//take a look at zero marked cells and
-//compute its possible values
-
-//TODO:FIX THIS
-func (s Solver) checkGridState() (state int) {
+func (s Solver) checkGridState() (state State) {
 	//check state
 	var requiresSpeculation = s.grid.HasRemainingConstraints()
 
@@ -112,7 +161,7 @@ func (s Solver) checkGridState() (state int) {
 }
 
 func (s Solver) findCellsWithSingleConstraints() (cellPositions []*Cell) {
-	var grid Grid = s.grid
+	grid := s.grid
 
 	for rowNum := 1; rowNum <= 9; rowNum++ {
 		for colNum := 1; colNum <= 9; colNum++ {

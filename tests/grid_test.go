@@ -200,4 +200,17 @@ var _ = Describe("Grid Model tests", func() {
 			})
 		})
 	})
+
+	Describe("Copy grid test: ", func() {
+		Context("When copy is called ", func() {
+			It("Should return a complete copy of the grid ", func() {
+				grid, _ := NewGrid(gridNums)
+				copiedGrid := grid.CopyGrid()
+				origRow, _ := grid.Row(1)
+				newRow, _ := copiedGrid.Row(1)
+
+				Expect(newRow).To(Equal(origRow))
+			})
+		})
+	})
 })
