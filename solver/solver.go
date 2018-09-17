@@ -40,14 +40,14 @@ func (s *Solver) Solve() Grid {
 
 	var stack []*Cell
 
-	var multCells []*Cell = grid.ReadCellsWithConstraints()
-	var filled = 81 - len(multCells)
+	var cellsToSolve []*Cell = grid.ReadCellsWithConstraints()
+	var filled = 81 - len(cellsToSolve)
 
-	var idx int = 0
+	var currentCellIndex int = 0
 
-	for filled <= 81 && idx < len(multCells) {
+	for filled <= 81 && currentCellIndex < len(cellsToSolve) {
 
-		val := multCells[idx]
+		val := cellsToSolve[currentCellIndex]
 		stack = append(stack, val)
 		// if can fill cell
 		if nextVal, okVal := val.NextPossibleValue(); okVal {
@@ -55,50 +55,26 @@ func (s *Solver) Solve() Grid {
 			grid.UpdateValueAt(val.CellRow(), val.CellColumn(), nextVal)
 			s.ComputeAllPossibleValues()
 			filled++
-			idx++
-			//fmt.Printf("**SpecSolve****  row %d, col %d  with %d\n", val.CellRow(), val.CellColumn(), val.CellValue())
-			//grid.PrintGrid()
-			//check bounds,
+			currentCellIndex++
+
 		} else {
-			//
-			//fmt.Printf("**SpecSolve Backtracking ... row %d, col %d\n", val.CellRow(), val.CellColumn())
-			//fmt.Printf("Possible vals %v\n", val.PossibleValues())
-			//fmt.P	rintf("Changing row %d, col %d back to 0")
+
 			val = stack[len(stack)-1]
-			//fmt.Printf("Reset previous cell. row %d, col %d to 0\n", val.CellRow(), val.CellColumn())
 			val.ResetIterator()
 			val.NewValue(0)
+
 			s.ComputeAllPossibleValues()
+
 			stack = stack[:len(stack)-1]
 
-			//if stack is empty and I've tried everything; return inconsistent
 			filled--
-			idx--
+			currentCellIndex--
 			//grid.PrintGrid()
 		}
 
 	}
 
 	return grid
-}
-
-//TODO: Add speculative solve; not complete!
-func speculativeSolve(g Grid) (grid Grid, state State) {
-	solver := New(g)
-	grid, state = solver.BasicSolve()
-	//if this yields an inconsistent state then
-	//return unsolved
-	if state == INCONSISTENT {
-		fmt.Printf("Inconsistent grid \n")
-		grid.PrintGrid()
-		//TODO: Add speculation
-		return
-	}
-	if state == COMPLETE {
-		fmt.Printf("Solution found \n")
-		return
-	}
-	return
 }
 
 //BasicSolve A simple solver. Solves sudoku's which require no speculation

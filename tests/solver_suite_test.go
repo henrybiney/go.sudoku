@@ -65,11 +65,58 @@ var _ = Describe("Sudoku Solver Suite", func() {
 
 		})
 		Context("Given a grid which requires speculation:", func() {
-			speculativeGrid, _ := model.NewGrid(examples.SUDOKER_SOLVER_CH2)
+			speculativeGrid, _ := model.NewGrid(examples.EVIL_SUDOKU)
 			mSolver := solver.New(*speculativeGrid)
 
-			It("Should return a 'REQUIRES_SPECULATION' state - Daily telegrah", func() {
-				fmt.Printf("Telegraph\n")
+			It("Should return a 'REQUIRES_SPECULATION' state - EvilSudoku", func() {
+				fmt.Printf("EvilSudoku - https://www.websudoku.com/?level=4&set_id=5866622639 \n")
+				grid := mSolver.Solve()
+				grid.PrintGrid()
+				//Expect(state).To(Equal(solver.REQUIRES_SPECULATION))
+			})
+		})
+		Context("Given a grid :", func() {
+			speculativeGrid, _ := model.NewGrid(examples.METRO_17_09_18_EASY)
+			mSolver := solver.New(*speculativeGrid)
+
+			It("Should return a complete state", func() {
+				fmt.Printf("Metro , 17/09/2018 Easy  \n")
+				grid := mSolver.Solve()
+				grid.PrintGrid()
+				//Expect(state).To(Equal(solver.REQUIRES_SPECULATION))
+			})
+		})
+
+		Context("Given a grid :", func() {
+			speculativeGrid, _ := model.NewGrid(examples.METRO_17_09_18_MODERATE)
+			mSolver := solver.New(*speculativeGrid)
+
+			It("Should return a complete state", func() {
+				fmt.Printf("Metro , 17/09/2018 MODERATE  \n")
+				grid := mSolver.Solve()
+				grid.PrintGrid()
+				//Expect(state).To(Equal(solver.REQUIRES_SPECULATION))
+			})
+		})
+
+		Context("Given a grid :", func() {
+			speculativeGrid, _ := model.NewGrid(examples.METRO_17_09_18_CHALLENGING)
+			mSolver := solver.New(*speculativeGrid)
+
+			It("Should return a complete state", func() {
+				fmt.Printf("Metro , 17/09/2018 CHALLENGING  \n")
+				grid := mSolver.Solve()
+				grid.PrintGrid()
+				//Expect(state).To(Equal(solver.REQUIRES_SPECULATION))
+			})
+		})
+
+		Context("Given a grid which requires speculation:", func() {
+			speculativeGrid, _ := model.NewGrid(examples.EVIL_SUDOKU_2)
+			mSolver := solver.New(*speculativeGrid)
+
+			It("Should return a 'REQUIRES_SPECULATION' state - EvilSudoku 2 ", func() {
+				fmt.Printf("EvilSudoku 2 - https://www.websudoku.com/?level=4&set_id=5866622639 \n")
 				grid := mSolver.Solve()
 				grid.PrintGrid()
 				//Expect(state).To(Equal(solver.REQUIRES_SPECULATION))

@@ -15,5 +15,5 @@ I have also chosen to write a simple front-end in [Elm](https://elm-lang.org/). 
 ### Work in progress
 - Add Elm front end
 - Allow posts of Sudoku images; Use ML to decode and solve
-- Benchmarks - How does this far against very hard Sudokus
+- Benchmarks - How does this fares against very hard Sudokus
 - Deploy to [Heroku](https://www.heroku.com/go)

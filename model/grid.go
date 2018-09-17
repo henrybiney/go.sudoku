@@ -12,7 +12,7 @@ type Grid struct {
 }
 
 // NewGrid : initialises a sudoku grid
-// Returns initialized grid if values on the grid are ok
+// Returns a pointer to the initialized grid if values on the grid are ok
 // together with the status of the err
 // err is Nil if initialization was ok or non-nil if otherwise
 func NewGrid(vals []int) (g *Grid, err error) {
@@ -23,8 +23,10 @@ func NewGrid(vals []int) (g *Grid, err error) {
 	}
 
 	rep := make(map[int][]Cell)
-	for i, row, col := 0, 1, 1; i < len(vals); i++ {
 
+	//read row based array
+	//row 1 starts array index 0, row 2 at index 11
+	for i, row, col := 0, 1, 1; i < len(vals); i++ {
 		rep[row] = append(rep[row], NewCell(row, col, vals[i]))
 		col++
 
@@ -53,140 +55,6 @@ func (g *Grid) computeAllConstraints() {
 			g.ComputePossibleValuesAt(row, col)
 		}
 	}
-}
-
-// ShowConstraints : print cells and their possible values
-func (g Grid) ShowConstraints() {
-	for _, row := range g.sortedKeys {
-		for _, cell := range g.nums[row] {
-			cell.PrintConstraints()
-
-		}
-	}
-}
-
-// PrintGrid :prints the sudoku grid
-func (g *Grid) PrintGrid() {
-	fmt.Printf("-------------------------------------\n")
-	for i := 1; i <= 9; i++ {
-
-		for j := 1; j <= 9; j++ {
-			v, _ := g.Read(i, j)
-			fmt.Printf(" %d |", v)
-		}
-		if i%3 == 0 {
-			fmt.Print("\n")
-			fmt.Printf("------------------------------------")
-
-		}
-
-		fmt.Printf("\n")
-
-	}
-	fmt.Printf("\n")
-
-}
-
-// RowCount : returns the number of rows in the grid
-func (g *Grid) RowCount() int {
-	return len(g.nums)
-}
-
-// Row Returns a Row given the row number
-// An error is returned if the row num less than or equal 0
-// or greater than 9
-func (g *Grid) Row(rowNum int) (row []int, err error) {
-	if !isValidBound(rowNum) {
-		return nil, fmt.Errorf("The row at %d does not exist", rowNum)
-	}
-	cells := g.nums[rowNum]
-	for _, cell := range cells {
-		row = append(row, cell.CellValue())
-	}
-	return
-}
-
-// Column Returns a Column given the row number
-// An error is returned if the row num less than or equal 0
-// or greater than 9
-func (g *Grid) Column(colNum int) (col []int, err error) {
-
-	if !isValidBound(colNum) {
-		err = fmt.Errorf("grid: column number must be between 0 and 9 but got %d", colNum)
-		return
-	}
-
-	//sort keys
-	for _, key := range g.sortedKeys {
-		col = append(col, g.nums[key][colNum-1].CellValue())
-	}
-
-	return
-}
-
-//ReadCell : reads a  cell on a grid given the rowNum and column number
-func (g Grid) ReadCell(row, col int) (cell *Cell, err error) {
-	if !isValidBound(row) || !isValidBound(col) {
-		return cell, fmt.Errorf("grid: rownum %d or col %d must be gt 10 or lt 0 ", row, col)
-	}
-	cell = &g.nums[row][col-1]
-	return
-}
-
-func (g *Grid) Read(rowNum, colNum int) (val int, err error) {
-
-	if !isValidBound(rowNum) || !isValidBound(colNum) {
-		return val, fmt.Errorf("grid: rownum %d or col %d must be gt 10 or lt 0 ", rowNum, colNum)
-	}
-
-	val = g.nums[rowNum][colNum-1].CellValue()
-
-	return
-}
-
-func isValidBound(position int) bool {
-	return !(position <= 0 || position > 9)
-
-}
-
-// UpdateValueAt updates a value at row and column
-func (g *Grid) UpdateValueAt(rowNum, colNum, newValue int) (err error) {
-	if !isValidBound(rowNum) || !isValidBound(colNum) {
-		err = fmt.Errorf("Invalid row %d or column %d on grid", rowNum, colNum)
-		return
-	}
-	g.nums[rowNum][colNum-1].NewValue(newValue)
-	return
-}
-
-//ConstraintsAt  : Is this supposed to be in the solver module or here?
-func (g *Grid) ConstraintsAt(rowNum, colNum int) (constraints []int, err error) {
-
-	_, err = g.Read(rowNum, colNum)
-
-	if err != nil {
-		err = fmt.Errorf("There was an error reading constraints at row %d, col %d",
-			rowNum, colNum)
-
-		return constraints, err
-
-	}
-	constraints, err = g.nums[rowNum][colNum-1].PossibleValues(), nil
-
-	return
-}
-
-func (g *Grid) ReadCellsWithConstraints() (cells []*Cell) {
-
-	for i := 1; i <= 9; i++ {
-		for j := 1; j <= 9; j++ {
-			cell, _ := g.ReadCell(i, j)
-			if cell.CellValue() == 0 && len(cell.PossibleValues()) > 1 {
-				cells = append(cells, cell)
-			}
-		}
-	}
-	return
 }
 
 // ComputePossibleValuesAt  : returns some value at the row
@@ -229,6 +97,49 @@ func (g *Grid) ComputePossibleValuesAt(row, col int) {
 
 }
 
+func (g *Grid) Read(rowNum, colNum int) (val int, err error) {
+
+	if !isValidBound(rowNum) || !isValidBound(colNum) {
+		return val, fmt.Errorf("grid: rownum %d or col %d must be gt 10 or lt 0 ", rowNum, colNum)
+	}
+
+	val = g.nums[rowNum][colNum-1].CellValue()
+
+	return
+}
+
+// Row Returns a Row given the row number
+// An error is returned if the row num less than or equal 0
+// or greater than 9
+func (g *Grid) Row(rowNum int) (row []int, err error) {
+	if !isValidBound(rowNum) {
+		return nil, fmt.Errorf("The row at %d does not exist", rowNum)
+	}
+	cells := g.nums[rowNum]
+	for _, cell := range cells {
+		row = append(row, cell.CellValue())
+	}
+	return
+}
+
+// Column Returns a Column given the row number
+// An error is returned if the row num less than or equal 0
+// or greater than 9
+func (g *Grid) Column(colNum int) (col []int, err error) {
+
+	if !isValidBound(colNum) {
+		err = fmt.Errorf("grid: column number must be between 0 and 9 but got %d", colNum)
+		return
+	}
+
+	//sort keys
+	for _, key := range g.sortedKeys {
+		col = append(col, g.nums[key][colNum-1].CellValue())
+	}
+
+	return
+}
+
 //GetBoxValuesAt Returns bounding values in a sudoku box (3x3 box)
 func (g *Grid) GetBoxValuesAt(rowNum, colNum int) (boxValues []int) {
 
@@ -243,6 +154,95 @@ func (g *Grid) GetBoxValuesAt(rowNum, colNum int) (boxValues []int) {
 		}
 	}
 
+	return
+}
+
+// ShowConstraints : print cells and their possible values
+func (g Grid) ShowConstraints() {
+	for _, row := range g.sortedKeys {
+		for _, cell := range g.nums[row] {
+			cell.PrintConstraints()
+
+		}
+	}
+}
+
+// PrintGrid :prints the sudoku grid
+func (g *Grid) PrintGrid() {
+	fmt.Printf("-------------------------------------\n")
+	for i := 1; i <= 9; i++ {
+
+		for j := 1; j <= 9; j++ {
+			v, _ := g.Read(i, j)
+			fmt.Printf(" %d |", v)
+		}
+		if i%3 == 0 {
+			fmt.Print("\n")
+			fmt.Printf("------------------------------------")
+
+		}
+
+		fmt.Printf("\n")
+
+	}
+	fmt.Printf("\n")
+
+}
+
+// RowCount : returns the number of rows in the grid
+func (g *Grid) RowCount() int {
+	return len(g.nums)
+}
+
+//ReadCell : reads a  cell on a grid given the rowNum and column number
+func (g Grid) ReadCell(row, col int) (cell *Cell, err error) {
+	if !isValidBound(row) || !isValidBound(col) {
+		return cell, fmt.Errorf("grid: rownum %d or col %d must be gt 10 or lt 0 ", row, col)
+	}
+	cell = &g.nums[row][col-1]
+	return
+}
+
+func isValidBound(position int) bool {
+	return !(position <= 0 || position > 9)
+
+}
+
+// UpdateValueAt updates a value at row and column
+func (g *Grid) UpdateValueAt(rowNum, colNum, newValue int) (err error) {
+	if !isValidBound(rowNum) || !isValidBound(colNum) {
+		err = fmt.Errorf("Invalid row %d or column %d on grid", rowNum, colNum)
+		return
+	}
+	g.nums[rowNum][colNum-1].NewValue(newValue)
+	return
+}
+
+//ConstraintsAt  : Is this supposed to be in the solver module or here?
+func (g *Grid) ConstraintsAt(rowNum, colNum int) (constraints []int, err error) {
+
+	if _, err = g.Read(rowNum, colNum); err != nil {
+		err = fmt.Errorf("There was an error reading constraints at row %d, col %d",
+			rowNum, colNum)
+
+		return constraints, err
+
+	}
+	constraints, err = g.nums[rowNum][colNum-1].PossibleValues(), nil
+
+	return
+}
+
+func (g *Grid) ReadCellsWithConstraints() (cells []*Cell) {
+
+	for i := 1; i <= 9; i++ {
+		for j := 1; j <= 9; j++ {
+			cell, _ := g.ReadCell(i, j)
+			if cell.CellValue() == 0 && len(cell.PossibleValues()) > 1 {
+				cells = append(cells, cell)
+			}
+		}
+	}
 	return
 }
 
