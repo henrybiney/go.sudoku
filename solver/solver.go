@@ -69,7 +69,6 @@ func (s *Solver) Solve() Grid {
 
 			filled--
 			currentCellIndex--
-			//grid.PrintGrid()
 		}
 
 	}
@@ -94,8 +93,6 @@ func (s *Solver) BasicSolve() (solution Grid, state State) {
 				cellValue, _ := cell.NextPossibleValue()
 				fmt.Printf("Updating row %d, col %d with value %d\n", cell.CellRow(), cell.CellColumn(), cellValue)
 				cell.NewValue(cellValue)
-
-				s.grid.PrintGrid()
 				cell.ResetIterator()
 
 			}

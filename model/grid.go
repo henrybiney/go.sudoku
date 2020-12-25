@@ -45,7 +45,6 @@ func NewGrid(vals []int) (g *Grid, err error) {
 	g = &Grid{nums: rep, sortedKeys: keys}
 
 	g.computeAllConstraints()
-	//g.nums[rowNum][colNum-1].SetPossibleValues(possibleVals)
 	return
 }
 
@@ -258,20 +257,4 @@ func (g *Grid) HasRemainingConstraints() bool {
 		}
 	}
 	return hasRemainingConstraints
-}
-
-//CopyGrid : Make a deep copy of the Grid
-//This looks rather ugly;
-func (g Grid) CopyGrid() (newGrid Grid) {
-
-	newGrid.sortedKeys = make([]int, len(g.sortedKeys))
-	newGrid.nums = make(map[int][]Cell)
-	copy(newGrid.sortedKeys, g.sortedKeys)
-
-	for k, v := range g.nums {
-		newGrid.nums[k] = make([]Cell, len(v))
-		copy(newGrid.nums[k], v)
-	}
-	return
-
 }

@@ -1307,8 +1307,15 @@ Inconsistent grid
 ------------------------------------
 
 TRACE: State is INCONSISTENT After speculative solve with row=5,col=5 set to 8
-TRACE: Possible values at 8,5 are map[6:6 3:3 4:4]
+TRACE: Possible                                                                                                                         values at 8,5 are map[6:6 3:3 4:4]
 TRACE:  The Current grid is: 
+
+
+
+
+
+
+
  -------------------------------------
  8 | 3 | 8 | 2 | 2 | 6 | 7 | 4 | 1 |
  4 | 1 | 6 | 4 | 9 | 7 | 2 | 5 | 8 |
