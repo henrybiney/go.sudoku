@@ -32,7 +32,7 @@ var _ = Describe("Sudoku Solver Suite", func() {
 	Describe("Basic Solve Test: ", func() {
 		Context("Given a grid, Metro @ 12/09/18 which requires *NO* speculation", func() {
 			no_specGrid, _ := model.NewGrid(examples.METRO_12_09_18_EASY)
-			mSolver := New(*no_specGrid)
+			mSolver := NewSolver(*no_specGrid)
 
 			It("Should return a complete state", func() {
 
@@ -43,7 +43,7 @@ var _ = Describe("Sudoku Solver Suite", func() {
 
 			Context("Given a grid, Metro @ 21/03/18 which requires *NO* speculation", func() {
 				no_specGrid, _ := model.NewGrid(examples.METRO_21_03_18_EASY)
-				mSolver := New(*no_specGrid)
+				mSolver := NewSolver(*no_specGrid)
 
 				It("Should return a complete state", func() {
 					grid := mSolver.Solve()
@@ -56,7 +56,7 @@ var _ = Describe("Sudoku Solver Suite", func() {
 		})
 		Context("Given a grid which requires speculation:", func() {
 			speculativeGrid, _ := model.NewGrid(examples.EVIL_SUDOKU)
-			mSolver := New(*speculativeGrid)
+			mSolver := NewSolver(*speculativeGrid)
 
 			It("Should return a 'REQUIRES_SPECULATION' state - EvilSudoku", func() {
 				fmt.Printf("EvilSudoku - https://www.websudoku.com/?level=4&set_id=5866622639 \n")
@@ -67,7 +67,7 @@ var _ = Describe("Sudoku Solver Suite", func() {
 		})
 		Context("Given a grid :", func() {
 			speculativeGrid, _ := model.NewGrid(examples.METRO_17_09_18_EASY)
-			mSolver := New(*speculativeGrid)
+			mSolver := NewSolver(*speculativeGrid)
 
 			It("Should return a complete state", func() {
 				fmt.Printf("Metro , 17/09/2018 Easy  \n")
@@ -79,7 +79,7 @@ var _ = Describe("Sudoku Solver Suite", func() {
 
 		Context("Given a grid :", func() {
 			speculativeGrid, _ := model.NewGrid(examples.METRO_17_09_18_MODERATE)
-			mSolver := New(*speculativeGrid)
+			mSolver := NewSolver(*speculativeGrid)
 
 			It("Should return a complete state", func() {
 				fmt.Printf("Metro , 17/09/2018 MODERATE  \n")
@@ -91,7 +91,7 @@ var _ = Describe("Sudoku Solver Suite", func() {
 
 		Context("Given a grid :", func() {
 			speculativeGrid, _ := model.NewGrid(examples.METRO_17_09_18_CHALLENGING)
-			mSolver := New(*speculativeGrid)
+			mSolver := NewSolver(*speculativeGrid)
 
 			It("Should return a complete state", func() {
 				fmt.Printf("Metro , 17/09/2018 CHALLENGING  \n")
@@ -103,7 +103,7 @@ var _ = Describe("Sudoku Solver Suite", func() {
 
 		Context("Given a grid which requires speculation:", func() {
 			speculativeGrid, _ := model.NewGrid(examples.EVIL_SUDOKU_2)
-			mSolver := New(*speculativeGrid)
+			mSolver := NewSolver(*speculativeGrid)
 
 			It("Should return a 'REQUIRES_SPECULATION' state - EvilSudoku 2 ", func() {
 				fmt.Printf("EvilSudoku 2 - https://www.websudoku.com/?level=4&set_id=5866622639 \n")

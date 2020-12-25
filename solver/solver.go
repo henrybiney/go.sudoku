@@ -26,8 +26,8 @@ type Solver struct {
 	grid Grid
 }
 
-//New :  Create a new solver
-func New(g Grid) Solver {
+//NewSolver :  Create a new solver
+func NewSolver(g Grid) Solver {
 	return Solver{grid: g}
 }
 
@@ -91,7 +91,7 @@ func (s *Solver) BasicSolve() (solution Grid, state State) {
 
 			for _, cell := range cellsWithSingleConstraints {
 				cellValue, _ := cell.NextPossibleValue()
-				fmt.Printf("Updating row %d, col %d with value %d\n", cell.CellRow(), cell.CellColumn(), cellValue)
+				//fmt.Printf("Updating row %d, col %d with value %d\n", cell.CellRow(), cell.CellColumn(), cellValue)
 				cell.NewValue(cellValue)
 				cell.ResetIterator()
 
